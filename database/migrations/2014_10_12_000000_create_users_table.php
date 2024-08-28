@@ -17,8 +17,11 @@ return new class extends Migration
             $table->string('prenom');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('telephone');
-            $table->string('addresse');
+            $table->string('telephone')->nullable();
+            $table->string('addresse')->nullable();
+            $table->string('password');
+            $table->integer('etat')->default(1)->nullable();
+            $table->integer('usercreate')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
