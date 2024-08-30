@@ -28,7 +28,12 @@ Route::post('me', [AuthController::class ,'me']);
 
 
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin','auth:api'])->group(function () {
+    //vendeur
+    Route::post('/creation/vendeur',[AuthController::class,'create']);
+    Route::post('/vendeur/{id}/bloquer',[Authcontroller::class,'bloquer']);
+    Route::post('/vendeur/{id}/debloquer',[Authcontroller::class,'debloquer']);
+    Route::get('/liste/vendeur/bloquer',[Authcontroller::class,'listeVendeurBolquer']);
 
 });
 
