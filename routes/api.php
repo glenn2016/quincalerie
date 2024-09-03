@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\ProduitController;
+use App\Http\Controllers\ClientController;
 
 
 /*
@@ -32,11 +33,15 @@ Route::post('me', [AuthController::class ,'me']);
 //Categorie
 Route::get('/liste/categorie', [CategorieController::class ,'index']);
 Route::get('/show/categorie/{id}', [CategorieController::class ,'show']);
-
 //Produits
 Route::get('/liste/produit', [ProduitController::class ,'index']);
 Route::get('/show/produit/{id}', [ProduitController::class ,'show']);
-
+//Client
+Route::get('/liste/client', [ClientController::class ,'index']);
+Route::get('/show/client/{client}', [ClientController::class ,'show']);
+Route::post('/ajout/client', [ClientController::class ,'store'])->middleware('auth:api');
+Route::post('/update/client/{id}', [ClientController::class ,'update'])->middleware('auth:api');
+Route::post('/destroy/client/{id}', [ClientController::class ,'destroy'])->middleware('auth:api');
 
 
 Route::middleware(['auth', 'role:admin','auth:api'])->group(function () {

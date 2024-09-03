@@ -21,7 +21,7 @@ class CategorieController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Une erreur est survenue lors de la récupération des catégories',
+                'message' => 'Une erreur est survenue lors de la récupération d\'une catégorie',
                 'error' => $e->getMessage(),
                 'status' => 500
             ], 500);
