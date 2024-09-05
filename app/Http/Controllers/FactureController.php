@@ -6,6 +6,7 @@ use App\Models\Facture;
 use Illuminate\Http\Request;
 use App\Models\FactureProduits;
 use App\Models\Produit;
+use App\Models\Client;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -94,6 +95,89 @@ class FactureController extends Controller
             ], 500);
         }
     }
+
+
+    /**
+     *2eme method pour genre une fature
+     */
+    public function stores(Request $request)
+    {
+        try {
+            // Validation des données d'entrée
+            $validatedData = $request->validate([
+                'client.nom' => ['required', 'string'],
+                'client.prenom' => ['required', 'string'],
+                'client.email' => ['required', 'email'],
+                'client.telephome_un' => ['required', 'string'],
+                'statut' => ['required', 'string'],
+                'type_facture_id' => ['required', 'integer'],
+                'produits' => ['required', 'array'],
+                'produits.*.produit_id' => ['required', 'integer'],
+                'produits.*.quantite' => ['required', 'integer'],
+            ]);
+
+            // Création du client s'il n'existe pas déjà
+            $client = Client::create([
+                'nom' => $validatedData['client']['nom'],
+                'prenom' => $validatedData['client']['prenom'],
+                'email' => $validatedData['client']['email'],
+                'telephome_un' => $validatedData['client']['telephome_un'],
+                'adresse' => $request->input('client.adresse'), // Optionnel
+            ]);
+
+            // Initialisation du total de la facture
+            $total = 0;
+
+            // Création de la facture
+            $facture = Facture::create([
+                'user_id' => Auth::id(),
+                'client_id' => $client->id, // Lien avec le client créé
+                'type_facture_id' => $validatedData['type_facture_id'],
+                'total' => 0, // Temporairement à 0, sera mis à jour après
+                'date' => now(),
+                'statut' => $validatedData['statut'],
+            ]);
+
+            // Parcours des produits pour les ajouter à la facture et calculer le total
+            foreach ($validatedData['produits'] as $produitData) {
+                $produit = Produit::find($produitData['produit_id']);
+                $prixTotal = $produit->prix * $produitData['quantite'];
+
+                // Ajout du produit à la facture via la table pivot
+                FactureProduits::create([
+                    'facture_id' => $facture->id,
+                    'produit_id' => $produit->id,
+                    'quantite' => $produitData['quantite'],
+                    'prix_total' => $prixTotal,
+                ]);
+
+                // Mise à jour du stock du produit
+                $produit->qteStock -= $produitData['quantite'];
+                $produit->save();
+
+                // Ajout du prix total de ce produit au total de la facture
+                $total += $prixTotal;
+            }
+
+            // Mise à jour du total de la facture
+            $facture->total = $total;
+            $facture->save();
+
+            return response()->json([
+                'message' => 'Facture et client créés avec succès',
+                'facture' => $facture,
+                'client' => $client,
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la création de la facture ou du client',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
+
     
     
     

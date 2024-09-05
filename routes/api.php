@@ -52,7 +52,8 @@ Route::middleware(['auth','auth:api'])->group(function () {
     Route::get('/show/typeFacture/{id}', [TypeFactureController::class ,'show']);
     //GEstion Facture
     Route::post('/ajout/facture', [FactureController::class ,'store']);
-
+    //ajout fature 2
+    Route::post('/ajouts/facture', [FactureController::class ,'stores']);
 });
 
 Route::middleware(['auth', 'role:admin','auth:api'])->group(function () {
