@@ -178,6 +178,43 @@ class FactureController extends Controller
         }
     }
 
+    /**
+     * Pour chaque client j'affiche la liste de
+     *  toutes ses factures ainsi que le details pour chque factures 
+     */
+    public function getFacturesByClient($clientId)
+    {
+        try {
+            // Récupérer le client avec ses factures et les détails des produits de chaque facture
+            $factures = Facture::where('client_id', $clientId)
+                ->with(['produits' => function ($query) {
+                    $query->select('produits.id', 'produits.nom', 'facture_produits.quantite', 'facture_produits.prix_total');
+                }])
+                ->get();
+    
+            if ($factures->isEmpty()) {
+                return response()->json([
+                    'message' => 'Aucune facture trouvée pour ce client',
+                    'status' => 404
+                ], 404);
+            }
+    
+            return response()->json([
+                'message' => 'Récupération des factures pour chaque client reussi',
+                'factures' => $factures,
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la récupération des factures',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
+    
+
+
     
     
     

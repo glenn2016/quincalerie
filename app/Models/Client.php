@@ -20,7 +20,7 @@ class Client extends Model
         'usercreate',
     ];
 
-    public function facture()
+    public function factures()
     {
         return $this->hasMany(Facture::class);
     }

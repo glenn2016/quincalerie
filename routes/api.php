@@ -52,8 +52,11 @@ Route::middleware(['auth','auth:api'])->group(function () {
     Route::get('/show/typeFacture/{id}', [TypeFactureController::class ,'show']);
     //GEstion Facture
     Route::post('/ajout/facture', [FactureController::class ,'store']);
-    //ajout fature 2
+    /*ajout fature 2*/
     Route::post('/ajouts/facture', [FactureController::class ,'stores']);
+     /*la listes ds factures pour chaque client */
+    Route::get('/liste/facture/client/{clientId}', [FactureController::class ,'getFacturesByClient']);
+
 });
 
 Route::middleware(['auth', 'role:admin','auth:api'])->group(function () {
