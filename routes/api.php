@@ -56,7 +56,6 @@ Route::middleware(['auth','auth:api'])->group(function () {
     Route::post('/ajouts/facture', [FactureController::class ,'stores']);
      /*la listes ds factures pour chaque client */
     Route::get('/liste/facture/client/{clientId}', [FactureController::class ,'getFacturesByClient']);
-
 });
 
 Route::middleware(['auth', 'role:admin','auth:api'])->group(function () {
@@ -67,6 +66,7 @@ Route::middleware(['auth', 'role:admin','auth:api'])->group(function () {
     Route::post('/vendeur/{id}/bloquer',[Authcontroller::class,'bloquer']);
     Route::post('/vendeur/{id}/debloquer',[Authcontroller::class,'debloquer']);
     Route::get('/liste/vendeur/bloquer',[Authcontroller::class,'listeVendeurBolquer']);
+    Route::put('/update/vendeurs/{id}', [Authcontroller::class, 'update']);
     //Categorie
     Route::post('/ajout/categorie', [CategorieController::class ,'store']);
     Route::post('/update/categorie/{id}', [CategorieController::class ,'update']);

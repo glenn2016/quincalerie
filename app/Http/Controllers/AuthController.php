@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Support\Facades\Storage;
 
 
 class AuthController extends Controller
@@ -30,7 +31,7 @@ class AuthController extends Controller
      * Get a JWT via given credentials.
      *
      * @return \Illuminate\Http\JsonResponse
-     * 
+     *
      */
 
     public function login()
@@ -150,8 +151,8 @@ class AuthController extends Controller
         }
 
     }
-    /** 
-     * Creation Vendeur 
+    /**
+     * Creation Vendeur
      */
     public function create(Request $request)
     {
@@ -212,6 +213,72 @@ class AuthController extends Controller
         }
     }
     /**
+     * Modification Vendeur
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            // Récupérer le vendeur à partir de l'ID
+            $user = User::findOrFail($id);
+
+            // Validation des données d'entrée
+            $validations = Validator::make($request->all(), [
+                'nom' => ['nullable', 'string', 'max:255'],
+                'prenom' => ['nullable', 'string', 'max:255'],
+                'email' => ['nullable', 'string', 'email', 'max:255', 'unique:' . User::class . ',email,' . $id],
+                'password' => 'nullable|string|min:8',
+                'telephone' => ['nullable', 'string', 'max:255'],
+                'addresse' => ['nullable', 'string', 'max:255'],
+                'img' => ['nullable', 'image', 'mimes:jpg,jpeg,png'], // Validation de l'image
+            ]);
+
+            // Si la validation échoue, retourner les erreurs
+            if ($validations->fails()) {
+                return response()->json([
+                    'errors' => $validations->errors(),
+                    'status' => 422 // Code d'état HTTP pour erreur de validation
+                ]);
+            }
+
+            // Traiter l'image si elle est présente
+            if ($request->hasFile('img')) {
+                // Supprimer l'ancienne image si elle existe
+                if ($user->img) {
+                    Storage::disk('public')->delete($user->img);
+                }
+
+                // Stocker la nouvelle image
+                $user->img = $request->file('img')->store('images', 'public');
+            }
+
+            // Mise à jour des champs
+            $user->nom = $request->nom ?? $user->nom;
+            $user->prenom = $request->prenom ?? $user->prenom;
+            $user->telephone = $request->telephone ?? $user->telephone;
+            $user->addresse = $request->addresse ?? $user->addresse;
+            $user->email = $request->email ? strtolower($request->email) : $user->email;
+            if ($request->password) {
+                $user->password = Hash::make($request->password);
+            }
+
+            // Enregistrer les modifications
+            $user->save();
+
+            // Retourner une réponse JSON de succès
+            return response()->json([
+                'message' => 'Vendeur modifié avec succès',
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            // En cas d'exception, retourner une réponse JSON avec un message d'erreur
+            return response()->json([
+                'message' => 'Erreur lors de la modification du vendeur',
+                'error' => $e->getMessage(),
+            ], 500); // 500 Internal Server Error
+        }
+    }
+
+    /**
      * Bloquer un utilisateur
      */
     public function bloquer($id)
@@ -246,7 +313,7 @@ class AuthController extends Controller
                 'User' => $user,
                 'status'=>200
             ],);
-        } catch (\Exception $e) { 
+        } catch (\Exception $e) {
             // En cas d'erreur, renvoyez une réponse JSON avec un message d'erreur
             return response()->json([
                 'message' => 'Erreur lors du déblocage de l\'utilisateur',
@@ -255,7 +322,7 @@ class AuthController extends Controller
             ]);
         }
     }
-    /** 
+    /**
      * Liste Participants bloquer
      */
     public function listeVendeurBolquer()
