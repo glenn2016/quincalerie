@@ -66,7 +66,7 @@ Route::middleware(['auth', 'role:admin','auth:api'])->group(function () {
     Route::post('/vendeur/{id}/bloquer',[Authcontroller::class,'bloquer']);
     Route::post('/vendeur/{id}/debloquer',[Authcontroller::class,'debloquer']);
     Route::get('/liste/vendeur/bloquer',[Authcontroller::class,'listeVendeurBolquer']);
-    Route::put('/update/vendeurs/{id}', [Authcontroller::class, 'update']);
+    Route::post('/update/vendeurs/{id}', [Authcontroller::class, 'update']);
     //Categorie
     Route::post('/ajout/categorie', [CategorieController::class ,'store']);
     Route::post('/update/categorie/{id}', [CategorieController::class ,'update']);
